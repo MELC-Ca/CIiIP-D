@@ -1,7 +1,7 @@
 {
-  "name": "lab-2-products-server",
+  "name": "lab-3-products-db",
   "version": "1.0.0",
-  "description": "Simple REST API for products management",
+  "description": "REST API with SQLite and MVC",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,11 +10,18 @@
   "keywords": [
     "lab",
     "api",
-    "express"
+    "express",
+    "sqlite",
+    "sequelize"
   ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "sequelize": "^6.37.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
   }
 }
