@@ -1,89 +1,58 @@
 const express = require('express');
-const app = express();
-const port = 3000;
+const path = require('path');
 
-// Middleware для парсинга JSON тела запроса
+// Импортируем весь объект моделей
+const db = require('./src/models'); 
+
+// Извлекаем sequelize безопасно
+const sequelize = db.sequelize;
+
+const productRoutes = require('./src/routes/productRoutes');
+const categoryRoutes = require('./src/routes/categoryRoutes');
+const uploadRoutes = require('./src/routes/uploadRoutes');
+
+const app = express();
+const PORT = 3000;
+
+// Лог для отладки (удалите после исправления ошибки)
+console.log('Проверка моделей:', Object.keys(db));
+
 app.use(express.json());
 
+// --- ЛАБОРАТОРНАЯ РАБОТА 4: СТАТИКА ---
 
-// Структура товара: { id: 1, name: "Товар", price: 100 }
-let products = [
-    { id: 1, name: 'Laptop', price: 1500 },
-    { id: 2, name: 'Mouse', price: 20 }
-];
+// Раздача статики и загрузок
+app.use('/static', express.static(path.join(__dirname, 'static')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Вспомогательная переменная для генерации ID
-let nextId = 3;
+// --- ПОДКЛЮЧЕНИЕ МАРШРУТОВ API ---
+app.use('/products', productRoutes);
+app.use('/categories', categoryRoutes);
+app.use('/upload', uploadRoutes);
 
-// 1. Получение списка всех товаров
-app.get('/products', (req, res) => {
-    res.json(products);
+app.get('/', (req, res) => {
+    res.send(`
+        <div style="font-family: sans-serif; text-align: center; padding: 20px;">
+            <h1>Сервер Лабораторной №4 работает!</h1>
+            <p>Статика: <a href="/static/index.html">/static/index.html</a></p>
+            <p>API Товаров: <a href="/products">/products</a></p>
+            <p>API Категорий: <a href="/categories">/categories</a></p>
+        </div>
+    `);
 });
 
-// 2. Получение товара по id
-app.get('/products/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const product = products.find(p => p.id === id);
-
-    if (product) {
-        res.json(product);
-    } else {
-        res.status(404).json({ message: 'Товар не найден' });
-    }
-});
-
-// 3. Добавление товара в каталог
-app.post('/products', (req, res) => {
-    const { name, price } = req.body;
-
-    if (!name || !price) {
-        return res.status(400).json({ message: 'Необходимо указать name и price' });
-    }
-
-    const newProduct = {
-        id: nextId++,
-        name,
-        price
-    };
-
-    products.push(newProduct);
-    res.status(201).json(newProduct);
-});
-
-// 4. Изменение товара по id
-app.put('/products/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const { name, price } = req.body;
-
-    const productIndex = products.findIndex(p => p.id === id);
-
-    if (productIndex !== -1) {
-        // Обновляем поля, если они переданы, иначе оставляем старые
-        products[productIndex] = {
-            ...products[productIndex],
-            name: name || products[productIndex].name,
-            price: price || products[productIndex].price
-        };
-        res.json(products[productIndex]);
-    } else {
-        res.status(404).json({ message: 'Товар не найден' });
-    }
-});
-
-// 5. Удаление товара по id
-app.delete('/products/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const productIndex = products.findIndex(p => p.id === id);
-
-    if (productIndex !== -1) {
-        const deletedProduct = products.splice(productIndex, 1);
-        res.json({ message: 'Товар удален', product: deletedProduct[0] });
-    } else {
-        res.status(404).json({ message: 'Товар не найден' });
-    }
-});
-
-// Запуск сервера
-app.listen(port, () => {
-    console.log(`Сервер запущен на http://localhost:${port}`);
-});
+// Проверяем наличие sequelize перед вызовом sync
+if (sequelize) {
+    sequelize.sync({ force: false }) 
+        .then(() => {
+            console.log('Database connected & tables synced!');
+            app.listen(PORT, () => {
+                console.log(`Server is running on http://localhost:${PORT}`);
+            });
+        })
+        .catch(err => {
+            console.error('Unable to connect to the database:', err);
+        });
+} else {
+    console.error('ОШИБКА: Sequelize не найден в объекте моделей. Проверьте src/models/index.js');
+}

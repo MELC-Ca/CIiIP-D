@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабораторная работа 4</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; text-align: center; background-color: #f9f9f9; }
+        h1 { color: #333; }
+        .box { 
+            border: 2px dashed #ccc; 
+            padding: 20px; 
+            margin: 20px auto; 
+            max-width: 400px; 
+            background: white;
+            border-radius: 8px;
+        }
+        .info { color: #666; font-size: 0.9em; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Привет! Это статический файл.</h1>
+    <p>Если ты видишь эту страницу, значит сервер правильно раздает статику из папки <code>/static</code>.</p>
+    
+    <div class="box">
+        <p><strong>Тестирование API</strong></p>
+        <p>Используйте Postman для отправки POST-запроса на <code>/upload</code> с ключом <code>file</code>.</p>
+    </div>
+
+    <div class="info">
+        Проверка загруженных изображений доступна по адресу:<br>
+        <code>http://localhost:3000/uploads/имя_файла</code>
+    </div>
+</body>
+</html>
