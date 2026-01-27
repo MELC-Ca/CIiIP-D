@@ -1,10 +1,39 @@
 const { Product, Category } = require('../models');
 
-// ВАЖНО: Проверь, что здесь написано "exports.имя"
 exports.getAllProducts = async (req, res) => {
     try {
-        const products = await Product.findAll({ include: Category });
-        res.json(products);
+        // Параметры запроса: 
+        // page - номер страницы (по умолчанию 1)
+        // limit - количество товаров на странице (по умолчанию 10)
+        // categoryId - фильтр по категории
+        
+        let { page, limit, categoryId } = req.query;
+
+        page = parseInt(page) || 1;
+        limit = parseInt(limit) || 10;
+        let offset = (page - 1) * limit;
+
+        // Формируем условия поиска
+        let whereOptions = {};
+        if (categoryId) {
+            whereOptions.categoryId = categoryId;
+        }
+
+        // findAndCountAll возвращает { count: общее_кол-во, rows: [массив_товаров] }
+        const data = await Product.findAndCountAll({
+            where: whereOptions,
+            limit: limit,
+            offset: offset,
+            include: Category // Подгружаем данные категории
+        });
+
+        res.json({
+            totalItems: data.count,
+            totalPages: Math.ceil(data.count / limit),
+            currentPage: page,
+            products: data.rows
+        });
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

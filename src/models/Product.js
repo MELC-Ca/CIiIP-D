@@ -14,8 +14,21 @@ const Product = sequelize.define('Product', {
     price: {
         type: DataTypes.FLOAT,
         allowNull: false
+    },
+    description: {
+        type: DataTypes.TEXT, // Для длинных описаний лучше TEXT
+        allowNull: true
+    },
+    image: {
+        type: DataTypes.STRING, // Путь к файлу
+        allowNull: true
+    },
+    stock_quantity: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: false
     }
-    // Поле categoryId Sequelize создаст автоматически при настройке связей
+    // categoryId добавляется автоматически через связи
 });
 
 module.exports = Product;
