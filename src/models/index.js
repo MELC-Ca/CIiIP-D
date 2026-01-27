@@ -1,15 +1,16 @@
 const sequelize = require('../database');
 const Category = require('./Category');
 const Product = require('./Product');
+const User = require('./User'); // Добавляем импорт
 
 // Настройка связи "Один ко многим"
-// Одна категория имеет много товаров
 Category.hasMany(Product, { foreignKey: 'categoryId' });
-// Товар принадлежит одной категории
 Product.belongsTo(Category, { foreignKey: 'categoryId' });
 
+// Экспортируем все модели
 module.exports = {
     sequelize,
     Category,
-    Product
+    Product,
+    User
 };
