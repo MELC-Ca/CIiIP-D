@@ -10,22 +10,19 @@ const sequelize = db.sequelize;
 const productRoutes = require('./src/routes/productRoutes');
 const categoryRoutes = require('./src/routes/categoryRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
+const authRoutes = require('./src/routes/authRoutes'); // <--- Добавили
 
 const app = express();
 const PORT = 3000;
 
-// Лог для отладки (удалите после исправления ошибки)
-console.log('Проверка моделей:', Object.keys(db));
-
 app.use(express.json());
-
-// --- ЛАБОРАТОРНАЯ РАБОТА 4: СТАТИКА ---
 
 // Раздача статики и загрузок
 app.use('/static', express.static(path.join(__dirname, 'static')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- ПОДКЛЮЧЕНИЕ МАРШРУТОВ API ---
+app.use('/auth', authRoutes); // <--- Регистрация и логин будут доступны по /auth/register и /auth/login
 app.use('/products', productRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/upload', uploadRoutes);
@@ -37,13 +34,15 @@ app.get('/', (req, res) => {
             <p>Статика: <a href="/static/index.html">/static/index.html</a></p>
             <p>API Товаров: <a href="/products">/products</a></p>
             <p>API Категорий: <a href="/categories">/categories</a></p>
+            <p>Авторизация: POST /auth/register, POST /auth/login</p>
         </div>
     `);
 });
 
 // Проверяем наличие sequelize перед вызовом sync
 if (sequelize) {
-    sequelize.sync({ force: false }) 
+    // alter: true обновит таблицы (добавит таблицу Users), не удаляя старые данные
+    sequelize.sync({ force: true }) // было alter: true
         .then(() => {
             console.log('Database connected & tables synced!');
             app.listen(PORT, () => {
