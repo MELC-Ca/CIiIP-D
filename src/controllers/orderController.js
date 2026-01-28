@@ -1,4 +1,4 @@
-const { Order, OrderItem, Product } = require('../models');
+const { Order, OrderItem, Product, User } = require('../models'); // Добавили User
 
 // Создать новый заказ
 exports.createOrder = async (req, res) => {
@@ -96,6 +96,25 @@ exports.getOrderDetails = async (req, res) => {
         }
 
         res.json(order);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Получить вообще все заказы в системе (только для ADMIN)
+exports.getAllOrders = async (req, res) => {
+    try {
+        // Подтягиваем заказы вместе с данными о пользователях, которые их сделали
+        const orders = await Order.findAll({
+            include: [
+                { 
+                    model: User, 
+                    attributes: ['id', 'email', 'first_name', 'last_name'] 
+                }
+            ],
+            order: [['date', 'DESC']]
+        });
+        res.json(orders);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

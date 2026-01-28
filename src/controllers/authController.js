@@ -110,3 +110,26 @@ exports.resetPassword = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// Повышение роли до ADMIN по секретному ключу
+exports.promoteToAdmin = async (req, res) => {
+    try {
+        const { email, secret } = req.body;
+
+        if (secret !== config.adminSecret) {
+            return res.status(403).json({ message: "Неверный секретный ключ!" });
+        }
+
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ message: "Пользователь не найден" });
+        }
+
+        user.role = 'ADMIN';
+        await user.save();
+
+        res.json({ message: `Пользователю ${email} успешно присвоена роль ADMIN` });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
